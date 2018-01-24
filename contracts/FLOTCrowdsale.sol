@@ -12,14 +12,14 @@ contract FLOTCrowdsale is Ownable, CanReclaimToken, Destructible {
 
     uint64 public startTimestamp;   //Crowdsale start timestamp
     uint64 public endTimestamp;     //Crowdsale end timestamp
-    uint256 public minCap;          //minimal amount of sold tokens (if not reached - ETH may be refunded)
+    uint256 public goal;            //minimal amount of sold tokens (if not reached - ETH may be refunded)
     uint256 public hardCap;         //total amount of tokens available
-    uint256 public baseRate;        //how many tokens will be minted for 1 ETH
+    uint256 public rate;            //how many tokens will be minted for 1 ETH
 
 
-    uint256 public tokensMinted;    //total amount of minted tokens
-    uint256 public tokensSold;      //total amount of tokens sold(!) on ICO, including all bonuses
-    uint256 public collectedEther;  //total amount of ether collected during ICO (without Pre-ICO)
+    uint256 public tokensSold;      //total amount of tokens sold(!) on ICO
+    uint256 public tokensMinted;    //total amount of minted tokens (this includes founder tokens and sold tokens)
+    uint256 public collectedEther;  //total amount of ether collected during ICO
 
     mapping(address => uint256) contributions; //amount of ether (in wei)received from a buyer
 
@@ -27,7 +27,10 @@ contract FLOTCrowdsale is Ownable, CanReclaimToken, Destructible {
 
     bool public finalized;
 
-    function FLOTCrowdsale(uint64 _startTimestamp, uint64 _endTimestamp, uint256 _hardCap, uint256 _minCap, uint256 _ownerTokens, uint256 _baseRate) public {
+    function FLOTCrowdsale(
+        uint64 _startTimestamp, uint64 _endTimestamp, uint256 _rate,
+        uint256 _founderTokens, uint256 _goal, uint256 _hardCap
+        ) public {
         require(_startTimestamp > now);
         require(_startTimestamp < _endTimestamp);
         startTimestamp = _startTimestamp;
@@ -36,16 +39,16 @@ contract FLOTCrowdsale is Ownable, CanReclaimToken, Destructible {
         require(_hardCap > 0);
         hardCap = _hardCap;
 
-        minCap = _minCap;
+        goal = _goal;
 
-        require(_baseRate > 0);
-        baseRate = _baseRate;
+        require(_rate > 0);
+        rate = _rate;
 
         token = new FLOTToken();
         token.init(owner);
 
-        require(_ownerTokens < _hardCap);
-        mintTokens(owner, _ownerTokens);
+        require(_founderTokens < _hardCap);
+        mintTokens(owner, _founderTokens);
     }
 
     /**
@@ -67,7 +70,7 @@ contract FLOTCrowdsale is Ownable, CanReclaimToken, Destructible {
     * @return amount of tokens
     */
     function getTokensForValue(uint256 value) view public returns(uint256) {
-        return value.mul(baseRate);
+        return value.mul(rate);
     }
 
 
@@ -105,7 +108,7 @@ contract FLOTCrowdsale is Ownable, CanReclaimToken, Destructible {
     function refundTo(address beneficiary) public returns(bool) {
         require(contributions[beneficiary] > 0);
         require(finalized || (now > endTimestamp));
-        require(tokensSold < minCap);
+        require(tokensSold < goal);
 
         uint256 value = contributions[beneficiary];
         contributions[beneficiary] = 0;
@@ -120,7 +123,7 @@ contract FLOTCrowdsale is Ownable, CanReclaimToken, Destructible {
         finalized = true;
         token.finishMinting();
         token.transferOwnership(owner);
-        if(tokensSold >= minCap){
+        if(tokensSold >= goal && this.balance > 0){
             owner.transfer(this.balance);
         }
     }
@@ -128,8 +131,10 @@ contract FLOTCrowdsale is Ownable, CanReclaimToken, Destructible {
     * @notice Claim collected ether without closing crowdsale
     */
     function claimEther() public onlyOwner {
-        require(tokensSold >= minCap);
-        owner.transfer(this.balance);
+        require(tokensSold >= goal);
+        if(this.balance > 0){
+            owner.transfer(this.balance);
+        }
     }
 
 }
