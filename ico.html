@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>FLOT ICO Admin</title>
+    <meta charset="UTF-8">
+    <script type="text/javascript" src="jquery-3.3.1.min.js"></script>
+    <script type="text/javascript" src="web3_v1_0.min.js"></script>
+    <script type="text/javascript" src="ico.js"></script>
+    <link rel="stylesheet" href="style.css" type='text/css'/>
+</head>
+<body>
+<h1>FLOT ICO Admin</h1>
+<div class="error" id="errormsg"></div>
+<h2>0. Load contracts</h2>
+<form id="loadContractsForm">
+    <label>Token ABI:
+        <textarea id="tokenABI" readonly class="abi"></textarea>
+    </label>
+    <label>Crowdsale ABI:
+        <textarea id="crowdsaleABI" readonly  class="abi"></textarea>
+    </label>
+</form>
+
+
+<h2>1. Publish Crowdsale</h2>
+<form id="publishContractsForm">
+    <h3>Crowdsale properties</h3>
+    <table>
+        <tr><td>Current time:</td><td><input type="text" id="clock" name="clock" value="" readonly class="time"> (Z = UTC timezone, ISO8601 format)</td></tr>
+        <tr><td>Start time:</td><td><input type="text" name="startTime" value="" class="time"></td></tr>
+        <tr><td>End time:</td><td><input type="text" name="endTime" value="" class="time"></td></tr>
+        <tr><td>Rate:</td><td><input type="number" name="rate" value="" class="number"> FLOT = 1 ETH</td></tr>
+        <tr><td>Founder tokens:</td><td><input type="number" name="founderTokens" value="" class="number"> FLOT (How much tokens you will receive after publishing the contract.)</td></tr>
+        <tr><td>Goal:</td><td><input type="number" name="goal" value="" class="number"> FLOT. (Minimal amount of sold tokens. If not reached - ETH may be refunded. Founder's tokens not included.)</td></tr>
+        <tr><td>Hard Cap:</td><td><input type="number" name="hardCap" value="" class="number"> FLOT. (Total amount of tokens, includig Founder's tokens.)</td></tr>
+    </table>
+    <div><input type="button" id="publishCrowdsale" value="Publish"></div>
+    <div><label>Transaction: <input type="text" readonly name="publishedTx" value="" class="ethTx"></label></div>
+    <div><label>Crowdsale Published at: <input type="text" readonly name="publishedAddress" value="" class="ethAddress"></label></div>
+    <div><label>Token Published at: <input type="text" readonly name="tokenAddress" value="" class="ethAddress"></label></div>
+</form>
+
+<h2>2. Manage Crowdsale </h2>
+<form id="manageCrowdsale">
+    <div><label>Crowdsale at: <input type="text" name="crowdsaleAddress" value="" class="ethAddress"></label></div>
+    <div><input type="button" id="loadCrowdsaleInfo" value="Load info"></div>
+    <table>
+        <tr><td>Token at:</td><td><input type="text" name="tokenAddress" readonly value="" class="ethAddress"></td><t/tr>
+        <tr><td>Start time:</td><td><input type="text" name="startTime" readonly value="" class="time"></td></tr>
+        <tr><td>End time:</td><td><input type="text" name="endTime" readonly value="" class="time"></td></tr>
+        <tr><td>Is ICO open:</td><td><input type="text" name="open" readonly value="" class=""></td></tr>
+        <tr><td>Rate:</td><td><input type="text" name="rate" readonly value="" class="number"> FLOT = 1 ETH</td></tr>
+        <tr><td>Goal:</td><td><input type="text" name="hardCap" readonly value="" class="number"> FLOT</td></tr>
+        <tr><td>Hard Cap:</td><td><input type="text" name="hardCap" readonly value="" class="number"> FLOT</td></tr>
+        <tr><td>Tokens sold:</td><td><input type="text" name="tokensSold" readonly value="" class="number"> FLOT</td></tr>
+        <tr><td>Tokens minted:</td><td><input type="text" name="tokensMinted" readonly value="" class="number"> FLOT</td></tr>
+        <tr><td>Collected Ether:</td><td><input type="text" name="collectedEther" readonly value="" class="number"> ETH</td></tr>
+        <tr><td>Current balance:</td><td><input type="text" name="balance" readonly value="" class="number"> ETH</td></tr>
+    </table>
+    <div><input type="button" id="crowdsaleClaim" value="Claim Ether"> Transfer collected Ether from the contract to your wallet</div>
+    <div><input type="button" id="crowdsaleFinalize" value="Finalize"> Finalize crowdsale: allow token transfer, change token ownership to yourself (which is required to manage token)</div>
+</form>
+
+</body>
+</html>
+
