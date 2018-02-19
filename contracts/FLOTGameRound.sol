@@ -21,7 +21,9 @@ contract FLOTGameRound is Ownable {
     struct Ticket {
         address player;                                 //Who send this bet
         uint256 amount;                                 //Amount of tokens used to place bet
-        Bet bet;        
+        // Bet bet;          //Can not use this because of solc bug
+        uint8[5/*MAIN_BET_SIZE*/] mainBet;              //Array of numbers from 1 to MAIN_BET_VARIANTS (inclusive)
+        uint8 bonusBet;                                 //A number from 1 to BONUS_BET_VARIANTS (inclusive)
     }
 
     uint256 public prizeFund;                           //Prize fund of this round (summ of all bought tickets + tokens from previous round)
@@ -54,7 +56,7 @@ contract FLOTGameRound is Ownable {
         prizeFund = token.balanceOf(address(this));
     }
 
-    //function() public {revert();} //We do not use fallback function
+    function() public {revert();} //We do not use fallback function
 
 
     function bet(uint256 amount, uint8[5/*MAIN_BET_SIZE*/] mainBet, uint8 bonusBet) public {
@@ -69,7 +71,9 @@ contract FLOTGameRound is Ownable {
             Ticket({
                 player: _player,
                 amount: _amount,
-                bet: Bet({mainBet:_mainBet, bonusBet:_bonusBet})
+                //bet: Bet({mainBet:_mainBet, bonusBet:_bonusBet})
+                mainBet:_mainBet, 
+                bonusBet:_bonusBet
             })
         );
     }
@@ -88,7 +92,8 @@ contract FLOTGameRound is Ownable {
         require(last > start);
         for(uint256 i = start; i < last; i++){
             Ticket storage t = tickets[i];
-            WinType w = getWinType(t.bet.mainBet, t.bet.bonusBet);
+            //WinType w = getWinType(t.bet.mainBet, t.bet.bonusBet);
+            WinType w = getWinType(t.mainBet, t.bonusBet);
             if(w != WinType.None){
                 PrizeInfo storage p = winners[uint8(w)];
                 p.winTikets.push(t);
@@ -99,7 +104,7 @@ contract FLOTGameRound is Ownable {
         return lastCheckedTicket;
     }
 
-    function getWinnersBetAmount(WinType w) public returns(uint256){
+    function getWinnersBetAmount(WinType w) view public returns(uint256){
         return winners[uint8(w)].totalBetAmount;
     }
 
