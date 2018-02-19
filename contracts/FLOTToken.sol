@@ -1,10 +1,11 @@
 pragma solidity ^0.4.15;
 
 
-import './zeppelin/token/MintableToken.sol';
+import './zeppelin/token/ERC20/MintableToken.sol';
+import './zeppelin/token/ERC827/ERC827Token.sol';
 import './zeppelin/ownership/NoOwner.sol';
 
-contract FLOTToken is MintableToken, NoOwner { //MintableToken is StandardToken, Ownable
+contract FLOTToken is MintableToken, ERC827Token, NoOwner { //MintableToken is StandardToken, Ownable
     string public symbol = 'FLOT';
     string public name = 'FLOT';
     uint8 public constant decimals = 18;
